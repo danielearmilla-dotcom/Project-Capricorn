@@ -1,1 +1,16 @@
+{
+  "name": "Capri // Project Capricorn",
+  "short_name": "Capri",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a12",
+  "theme_color": "#0a0a12",
+  "icons": [
+    {
+      "src": "IMG_1504.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
 
