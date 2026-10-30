@@ -13,13 +13,14 @@
     .header-info { display: flex; align-items: center; gap: 15px; }
     .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #00ffcc; background: #00332c; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; box-shadow: 0 0 10px #00ffcc; }
     .status-title { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-    .status-sub { font-size: 11px; color: #ff0055; }
+    .status-sub { font-size: 11px; color: #00ffcc; }
     .reset-btn { background: transparent; border: 1px solid #ff0055; color: #ff0055; font-size: 10px; padding: 4px 8px; border-radius: 3px; cursor: pointer; }
     
     #chat-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
     .msg { max-width: 85%; padding: 10px 14px; border-radius: 4px; font-size: 14px; line-height: 1.4; word-break: break-word; }
     .msg.bot { background: rgba(0, 255, 204, 0.1); border-left: 3px solid #00ffcc; color: #e0ffff; align-self: flex-start; }
     .msg.user { background: rgba(255, 0, 85, 0.15); border-right: 3px solid #ff0055; color: #ffffff; align-self: flex-end; }
+    .msg.loading { color: #888; font-style: italic; }
     
     footer { padding: 12px; background: #12121f; border-top: 1px solid #1a1a2e; display: flex; gap: 8px; }
     input[type="text"] { flex: 1; background: #05050a; border: 1px solid #00ffcc; padding: 12px; color: #fff; outline: none; font-size: 14px; border-radius: 4px; }
@@ -33,7 +34,7 @@
 
   <div id="key-modal">
     <h2 style="color:#00ffcc;">ACCESO REQUERIDO</h2>
-    <p style="font-size:12px; color:#aaa;">Pega tu API Key de Google AI Studio (comienza por AIzaSy...):</p>
+    <p style="font-size:12px; color:#aaa;">Pega tu API Key de Google AI Studio:</p>
     <input type="text" id="api-key-input" placeholder="AIzaSy...">
     <button onclick="saveKey()" style="background:#00ffcc; color:#05050a; border:none; padding:12px; font-weight:bold; border-radius:4px;">INICIALIZAR</button>
   </div>
@@ -43,7 +44,7 @@
       <div class="avatar">C</div>
       <div>
         <div class="status-title">CAPRI // CAPRICORN</div>
-        <div class="status-sub">● EN LINEA - ENLACE ESTABLE</div>
+        <div class="status-sub">● EN LINEA - ESTABLE</div>
       </div>
     </div>
     <button class="reset-btn" onclick="resetKey()">CAMBIAR KEY</button>
@@ -92,8 +93,14 @@
 
       history.push({ role: 'user', parts: [{ text: text }] });
 
+      // Añadir indicador visual de carga
+      const box = document.getElementById('chat-box');
+      const loadId = 'load-' + Date.now();
+      box.innerHTML += `<div id="${loadId}" class="msg bot loading">procesando en la red...</div>`;
+      box.scrollTop = box.scrollHeight;
+
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -103,6 +110,7 @@
         });
         
         const data = await res.json();
+        document.getElementById(loadId).remove();
         
         if (data.error) {
           addBotMsg(`error de protocolo (${data.error.code}): ${data.error.message}`);
@@ -113,7 +121,8 @@
         history.push({ role: 'model', parts: [{ text: reply }] });
         addBotMsg(reply);
       } catch (e) {
-        addBotMsg("error de conexion... comprueba tu API Key pulsando 'CAMBIAR KEY' arriba.");
+        document.getElementById(loadId).remove();
+        addBotMsg("error de conexion... comprueba tu red.");
       }
     }
 
