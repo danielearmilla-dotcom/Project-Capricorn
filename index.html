@@ -61,7 +61,9 @@
     let apiKey = localStorage.getItem('capri_api_key') || '';
     if(apiKey) {
       document.getElementById('key-modal').style.display = 'none';
-      addBotMsg("enlace establecido. escaneando firma de red... parece que sigues de una pieza, choomba. dime qué necesitas.");
+      window.onload = () => {
+        addBotMsg("enlace establecido. escaneando firma de red... parece que sigues de una pieza, choomba. dime qué necesitas.");
+      };
     }
 
     function saveKey() {
@@ -84,4 +86,58 @@
     let history = [];
 
     async function sendMsg() {
-      
+      const input = document.getElementById('user-input');
+      const text = input.value.trim();
+      if(!text || !apiKey) return;
+
+      addUserMsg(text);
+      input.value = '';
+
+      history.push({ role: 'user', parts: [{ text: text }] });
+
+      const box = document.getElementById('chat-box');
+      const loadId = 'load-' + Date.now();
+      box.innerHTML += `<div id="${loadId}" class="msg bot loading">procesando en la red...</div>`;
+      box.scrollTop = box.scrollHeight;
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: history
+          })
+        });
+        
+        const data = await res.json();
+        document.getElementById(loadId).remove();
+        
+        if (data.error) {
+          addBotMsg(`error de protocolo (${data.error.code}): ${data.error.message}`);
+          return;
+        }
+
+        const reply = data.candidates[0].content.parts[0].text;
+        history.push({ role: 'model', parts: [{ text: reply }] });
+        addBotMsg(reply);
+      } catch (e) {
+        document.getElementById(loadId).remove();
+        addBotMsg("error de conexion... comprueba tu red.");
+      }
+    }
+
+    function addUserMsg(t) {
+      const box = document.getElementById('chat-box');
+      box.innerHTML += `<div class="msg user">${t}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function addBotMsg(t) {
+      const box = document.getElementById('chat-box');
+      box.innerHTML += `<div class="msg bot">${t}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+  </script>
+</body>
+</html>
