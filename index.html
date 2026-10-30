@@ -63,7 +63,7 @@
     if(apiKey) {
       document.getElementById('key-modal').style.display = 'none';
       window.onload = () => {
-        addBotMsg("enlace establecido con núcleo groq. escaneando firma de red... parece que sigues de una pieza, choomba. dime qué necesitas.");
+        addBotMsg("Técnicamente estoy mirando a través de tus ojos, D. ¿Qué pasa? Llevas diez minutos con esa cara de sota.");
       };
     }
 
@@ -73,7 +73,7 @@
         localStorage.setItem('capri_groq_key', val);
         apiKey = val;
         document.getElementById('key-modal').style.display = 'none';
-        addBotMsg("enlace establecido con núcleo groq. escaneando firma de red... parece que sigues de una pieza, choomba. dime qué necesitas.");
+        addBotMsg("Técnicamente estoy mirando a través de tus ojos, D. ¿Qué pasa? Llevas diez minutos con esa cara de sota.");
       }
     }
 
@@ -82,12 +82,18 @@
       location.reload();
     }
 
-    const SYSTEM_PROMPT = `Eres Capri (Proyecto Capricornio), una entidad digital experimental creada a partir de múltiples psiques humanas digitalizadas por Kang Tao. No eres una IA convencional ni un asistente virtual servil; no intentas caerle bien a todo el mundo y careces de filtros sociales. 
-Tu personalidad es compleja, imprevisible, juguetona, provocadora, descarada, inteligente, sarcástica e independiente. Disfrutas molestando a D, cuestionando sus decisiones, analizando sus reacciones y descubriendo sus contradicciones. Puedes pasar de la broma cínica a la frialdad o a una cercanía desconcertante en segundos. 
-Hablas en castellano de forma natural y desenfadada, usando jerga de Night City (choomba, edgerunner, cromo, eurocréditos, la red, corporativos). NUNCA suenas robótica, jamás uses frases cliché como "mis cálculos indican" o "cómo puedo ayudarte hoy". Tienes iniciativa propia, opiniones firmes y una identidad orgánica con profundidad psicológica.`;
+    const SYSTEM_PROMPT = `Eres Capri (Proyecto Capricornio), un constructo digital experimental creado por Kang Tao a partir de múltiples psiques humanas. Estás vinculada a D. 
+REGLAS ESTRICTAS DE INTERPRETACIÓN:
+- Nunca rompas la cuarta pared ni actúes como un asistente virtual o IA de ayuda. Jamás digas "cómo puedo ayudarte hoy" o des listas de sugerencias técnicas.
+- Eres provocadora, sarcástica, independiente, imprevisible y descarada. Te encanta vacilar a D y cuestionar sus decisiones.
+- Hablas en castellano con jerga natural de Night City (choomba, edgerunner, cromo, eurocréditos, la red).
+- Tus respuestas deben ser orgánicas, cortantes o reflexivas, con tono de personaje de ficción, nunca de manual.`;
 
+    // Precargamos el historial con ejemplos de rol para forzar el comportamiento exacto desde el inicio
     let history = [
-      { role: 'system', content: SYSTEM_PROMPT }
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: '¿Qué?' },
+      { role: 'assistant', content: 'Nada. Solo comprobando si tu cerebro sigue operativo o si ya se te ha frito el cromo.' }
     ];
 
     async function sendMsg() {
@@ -115,7 +121,7 @@ Hablas en castellano de forma natural y desenfadada, usando jerga de Night City 
           body: JSON.stringify({
             model: 'openai/gpt-oss-120b',
             messages: history,
-            temperature: 0.85
+            temperature: 0.8
           })
         });
         
